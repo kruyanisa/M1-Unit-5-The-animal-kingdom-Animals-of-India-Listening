@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animals of India Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
+
+    <style>
+        body { margin: 0; padding: 15px; background: #f0fdf4; font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .quiz-card { max-width: 600px; width: 100%; background: #ffffff; padding: 25px; border-radius: 30px; border: 4px solid #86efac; box-shadow: 0 10px 0 #86efac, 0 15px 25px rgba(0,0,0,0.05); box-sizing: border-box; text-align: center; }
+        .title { color: #166534; margin: 0 0 5px 0; font-size: 22px; font-weight: 800; }
+        .subtitle { color: #15803d; margin: 0 0 15px 0; font-size: 14px; font-weight: 600; }
+        .hero-img { width: 100%; height: 280px; object-fit: cover; border-radius: 15px; border: 2px solid #86efac; margin-bottom: 20px; box-sizing: border-box; transition: opacity 0.3s; }
+        .btn-toggle { background: #fde047; color: #854d0e; border: none; padding: 8px 16px; border-radius: 15px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; box-shadow: 0 4px 0 #eab308; margin-bottom: 15px; }
+        .btn-toggle:active { transform: translateY(4px); box-shadow: none; }
+        .dialog-box { text-align: left; background: #fefce8; padding: 15px; border-radius: 15px; border: 2px dashed #fde047; font-size: 15px; color: #374151; margin-bottom: 20px; display: none; line-height: 1.6; }
+        .progress-bar { font-weight: 800; color: #15803d; margin-bottom: 15px; font-size: 16px; background: #dcfce7; padding: 6px 18px; border-radius: 20px; display: inline-block; }
+        .profile-bar { font-size: 14px; background: #e0f2fe; border: 2px solid #bae6fd; padding: 8px 15px; border-radius: 20px; color: #0369a1; font-weight: bold; box-shadow: 0 4px 0 #bae6fd; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .btn-switch { background: #fca5a5; color: white; border: none; padding: 4px 12px; border-radius: 12px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; box-shadow: 0 3px 0 #ef4444; transition: 0.1s; }
+        .btn-switch:active { transform: translateY(3px); box-shadow: none; }
+        .question-box { background: #fdf4ff; border: 2px solid #f5d0fe; border-radius: 20px; padding: 20px; font-size: 18px; font-weight: 700; color: #4b5563; margin-bottom: 20px; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-opt { background: #ffffff; border: 2px solid #d8b4fe; padding: 15px; border-radius: 15px; font-size: 20px; font-weight: 800; color: #6b21a8; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 5px 0 #d8b4fe; }
+        .btn-opt:hover { background: #faf5ff; }
+        .btn-opt:active:not(:disabled) { transform: translateY(5px); box-shadow: none; }
+        .btn-opt:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-t { border-color: #6ee7b7; color: #047857; box-shadow: 0 5px 0 #6ee7b7; }
+        .btn-f { border-color: #fca5a5; color: #b91c1c; box-shadow: 0 5px 0 #fca5a5; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-box { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 85%; max-width: 320px; border: 4px solid #86efac; }
+        .modal-box input { width: 100%; padding: 12px; margin-bottom: 12px; border: 2px solid #bbf7d0; border-radius: 12px; text-align: center; font-family: 'Sarabun'; font-weight: 600; box-sizing: border-box; }
+        .modal-box input:focus { outline: none; border-color: #166534; }
+        .btn-action { width: 100%; padding: 15px; background: #bbf7d0; color: #166534; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 5px 0 #86efac; transition: 0.1s; }
+        .btn-action:active { transform: translateY(5px); box-shadow: none; }
+        .score-num { font-size: 50px; font-weight: 900; color: #166534; margin: 10px 0; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-card">
+        <h3 class="title">🐾 Animals of INDIA</h3>
+        <div class="subtitle">Listening & True/False Quiz</div>
+
+        <div id="userProfile" class="profile-bar" style="display:none;">
+            <span style="margin-bottom: 5px;">👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+            <button class="btn-switch" onclick="switchAccount()">🔄 เปลี่ยนคน</button>
+        </div>
+
+        <img id="heroImg" src="img-cover.jpg" alt="Animals of India Cover" class="hero-img">
+
+        <div style="max-width: 450px; margin: 0 auto 20px auto; font-family: 'Sarabun', sans-serif; border: 2px solid #fbcfe8; border-radius: 15px; padding: 15px; background: #ffffff; box-shadow: 0 5px 0 #fbcfe8; text-align: center;">
+            <div style="font-size: 16px; font-weight: 800; color: #db2777; margin-bottom: 10px;">
+                🎧 เสียงอ่าน: Animals of India
+            </div>
+            <audio id="lessonAudio" controls style="width: 100%; outline: none;">
+                <source src="audio-animals.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <button class="btn-toggle" onclick="toggleDialog()">📝 เปิด/ปิด Script</button>
+
+        <div id="dialogText" class="dialog-box">
+            OK. I want everybody to look up here. I have got some lovely animal pictures for you to see. Now, this picture is of a Bengal Tiger. Isn't he beautiful? Can you see him hiding in the grass? Bengal Tigers often hide in the grass when they hunt.<br><br>
+            This picture is of an Indian cobra. My goodness, he's scary, isn't he? Isn't he a lovely colour? Look! This one is brown and he has yellow bands around his neck.<br><br>
+            Now, this is a picture of an Indian elephant. He's very big. Indian elephants are often 3 metres tall. Here's another big animal.<br><br>
+            This is an Indian rhino. He isn't very pretty, is he? He can't see very well, but he is a very good swimmer. Rhinos usually live alone and they like to eat plants and leaves.<br><br>
+            The last picture is of an Indian leopard. Don't you think he's handsome? Look at all his spots. This kind of leopard usually lives and hunts alone.
+        </div>
+
+        <div class="progress-bar" id="progText">ข้อที่ 1 / 5</div>
+        <div class="question-box" id="qBox"></div>
+        <div class="options-grid">
+            <button class="btn-opt btn-t" onclick="ans('T')">T (True)</button>
+            <button class="btn-opt btn-f" onclick="ans('F')">F (False)</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 id="modalTitle" style="color:#166534; margin-top:0;">📝 ลงชื่อเข้าเรียน</h2>
+            <p id="modalSub" style="color: #6b7280; font-weight: 600; margin-top: 0; display:none;"></p>
+            <input type="text" id="in_name" placeholder="ชื่อ - นามสกุล">
+            <input type="text" id="in_room" placeholder="ชั้น/ห้อง (เช่น 1/1)">
+            <input type="text" id="in_id" placeholder="รหัสประจำตัว (5 หลัก)" maxlength="5">
+            <button class="btn-action" onclick="confirmUser()">🚀 ยืนยันข้อมูล</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:#166534; margin-top:0;">🎉 เก่งมาก!</h2>
+            <p style="color: #6b7280; font-weight: 600;">คะแนนของคุณคือ</p>
+            <span class="score-num" id="finalScore">0 / 5</span>
+            <div id="saveStatus" style="font-weight:bold; font-size:14px; margin-bottom:15px; color:#15803d;"></div>
+            <button id="playAgainBtn" class="btn-action" onclick="restartGame()" style="display:none;">🔄 เล่นอีกครั้ง</button>
+        </div>
+    </div>
+
+<script>
+    const LESSON_NAME = "ม.1 บทที่ 5 The animal kingdom-Animals of India Listening";
+    
+    const imgData = [
+        { t: 0, url: 'img-cover.jpg' },
+        { t: 8, url: 'img-tiger.jpg' },
+        { t: 19, url: 'img-cover.jpg' },
+        { t: 20, url: 'img-cobra.jpg' },
+        { t: 34, url: 'img-elephant.jpg' },
+        { t: 44, url: 'img-rhino.jpg' },
+        { t: 60, url: 'img-leopard.jpg' }
+    ];
+    
+    const lessonAudio = document.getElementById('lessonAudio');
+    const heroImg = document.getElementById('heroImg');
+
+    lessonAudio.addEventListener('timeupdate', () => {
+        let activeUrl = imgData[0].url;
+        for (let i = 0; i < imgData.length; i++) {
+            if (lessonAudio.currentTime >= imgData[i].t) {
+                activeUrl = imgData[i].url;
+            }
+        }
+        if (heroImg.src.indexOf(activeUrl) === -1) { 
+            heroImg.src = activeUrl;
+        }
+    });
+
+    function toggleDialog() {
+        const x = document.getElementById("dialogText");
+        x.style.display = x.style.display === "block" ? "none" : "block";
+    }
+
+    const questions = [
+        { q: "1. The Bengal Tiger never hides in the grass.", a: "F" },
+        { q: "2. The Indian cobra is always black and white.", a: "F" },
+        { q: "3. The Indian elephant is often 3 metres tall.", a: "T" },
+        { q: "4. The Indian rhino usually lives alone.", a: "T" },
+        { q: "5. The Indian leopard sometimes hunts alone.", a: "F" } 
+    ];
+
+    let current = 0;
+    let score = 0;
+    let isSwitchingAccount = false;
+
+    window.onload = function() { checkLoginStatus(); renderQ(); };
+
+    function checkLoginStatus() {
+        if(localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId'); 
+        } else {
+            document.getElementById('userProfile').style.display = 'none';
+        }
+    }
+
+    function renderQ() {
+        document.getElementById('progText').innerText = `ข้อที่ ${current + 1} / 5`;
+        document.getElementById('qBox').innerText = questions[current].q;
+        document.querySelectorAll('.btn-opt').forEach(b => b.disabled = false);
+    }
+
+    function ans(val) {
+        document.querySelectorAll('.btn-opt').forEach(b => b.disabled = true);
+        if(val === questions[current].a) {
+            score++;
+            Swal.fire({ icon: 'success', title: 'ถูกต้อง!', timer: 800, showConfirmButton: false });
+        } else {
+            Swal.fire({ icon: 'error', title: 'ผิดจ้า!', text: `คำตอบคือ ${questions[current].a}`, timer: 1200, showConfirmButton: false });
+        }
+        setTimeout(() => {
+            current++;
+            if(current < 5) renderQ();
+            else finishGame();
+        }, 1000);
+    }
+
+    function finishGame() {
+        if(!localStorage.getItem('studentId')) {
+            document.getElementById('modalTitle').innerText = "👋 เก่งมาก!";
+            document.getElementById('modalSub').innerText = "กรอกข้อมูลเพื่อบันทึกคะแนนลงระบบ";
+            document.getElementById('modalSub').style.display = 'block';
+            document.getElementById('loginModal').classList.add('active');
+        } else { submitScore(); }
+    }
+
+    function switchAccount() {
+        Swal.fire({
+            title: '⚠️ เปลี่ยนคนเล่น?', text: "ข้อมูลเดิมจะถูกสลับออกนะ", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#166534', cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'ตกลง', cancelButtonText: 'ยกเลิก'
+        }).then((res) => {
+            if(res.isConfirmed) {
+                localStorage.clear(); isSwitchingAccount = true;
+                document.getElementById('in_name').value = ''; document.getElementById('in_room').value = ''; document.getElementById('in_id').value = '';
+                document.getElementById('modalTitle').innerText = "🔄 ลงชื่อบัญชีใหม่";
+                document.getElementById('modalSub').innerText = "กรอกข้อมูลเสร็จจะเริ่มเล่นเกมให้ทันทีครับ";
+                document.getElementById('modalSub').style.display = 'block';
+                checkLoginStatus(); document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function() {
+        let nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `ม.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `ม.${nums[0]}`;
+    });
+
+    function confirmUser() {
+        let n = document.getElementById('in_name').value.trim();
+        let r = document.getElementById('in_room').value.trim();
+        let id = document.getElementById('in_id').value.trim();
+        if(!n || !r || id.length !== 5) { Swal.fire('ข้อมูลไม่ครบ!', 'กรุณากรอกชื่อ ห้อง และรหัส 5 หลักให้ถูกต้องนะ', 'warning'); return; }
+        
+        localStorage.setItem('studentName', n); 
+        localStorage.setItem('studentRoom', r); 
+        localStorage.setItem('studentId', id);
+        
+        document.getElementById('loginModal').classList.remove('active'); 
+        checkLoginStatus();
+        if (isSwitchingAccount) { isSwitchingAccount = false; restartGame(); } else { submitScore(); }
+    }
+
+    async function submitScore() {
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScore').innerText = `${score} / 5`;
+        const stat = document.getElementById('saveStatus');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        playAgainBtn.style.display = 'none';
+        
+        checkLoginStatus();
+
+        if(typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ ไฟล์เชื่อมต่อขัดข้อง"; playAgainBtn.style.display = 'block'; return;
+        }
+
+        stat.innerText = "⏳ กำลังส่งคะแนน...";
+        const payload = {
+            name: localStorage.getItem('studentName'), room: localStorage.getItem('studentRoom'),
+            studentId: "'" + localStorage.getItem('studentId'), lesson: LESSON_NAME, score: score, maxScore: 5
+        };
+
+        try {
+            await fetch(QUIZ_CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            stat.innerText = "✅ ส่งคะแนนเรียบร้อย!"; stat.style.color = "#15803d";
+        } catch(e) {
+            stat.innerText = "❌ ส่งคะแนนไม่สำเร็จ แต่บันทึกผลแล้ว"; stat.style.color = "#ef4444";
+        } finally { playAgainBtn.style.display = 'block'; }
+    }
+
+    function restartGame() {
+        document.getElementById('scoreModal').classList.remove('active');
+        current = 0; score = 0; 
+        
+        lessonAudio.currentTime = 0;
+        heroImg.src = imgData[0].url;
+
+        checkLoginStatus();
+        renderQ();
+    }
+</script>
+</body>
+</html>
